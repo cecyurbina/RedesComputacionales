@@ -17,6 +17,8 @@ class MyTkApp(threading.Thread):
         self.master=Tkinter.Tk()
         self.frame = Tkinter.Frame(self.master)
         self.frame.pack()
+        self.objetos = []
+        self.paquete = "nada"
         self.linea = Tkinter.Button(self.frame, text="linea",bg="white",
                             command=lambda:self.seleccion("linea"))
         self.linea.grid(row=1, column=0,padx=15, pady=7)
@@ -33,6 +35,7 @@ class MyTkApp(threading.Thread):
                     padx=5, pady=5)
         canvas.bind('<ButtonPress-1>', self.click)
         canvas.bind('<B1-Motion>', self.mueve)
+        canvas.bind('<ButtonRelease-1>', self.soltar)
         self.canvas = canvas
         self.borrar = Tkinter.Button(self.frame, text="borrar", bg="white",
                              command=self.borrar)
@@ -41,6 +44,7 @@ class MyTkApp(threading.Thread):
         self.color = "black"
         self.dibujo = None
         self.figura = "linea"
+        self.objeto = Figura(self.figura)
         self.mas_gruesa = Tkinter.Button(self.frame, text="+", bg="white",
                                  command=lambda:self.conf_linea("+"))
         self.mas_gruesa.grid(row=0, column=1,padx=15, pady=7)
@@ -63,6 +67,15 @@ class MyTkApp(threading.Thread):
                             command=lambda:self.cambiar_color("black"))
         self.black.grid(row=0, column=7,padx=15, pady=7)
         self.master.mainloop()
+
+    def soltar(self, event):
+        if self.dibujo:
+            self.objetos.append(self.dibujo)
+            print self.objetos
+            print type(self.dibujo)
+            print "se va a enviar este"
+            self.paquete = str(self.objeto.x)+","+str(self.objeto.y)+","+self.objeto.tipo+","+str(self.objeto.x_final)+","+str(self.objeto.y_final)+","+self.objeto.color+","+str(self.objeto.grosor)
+            print self.paquete
 
     def click(self, event):
         self.inicio = event
@@ -89,6 +102,14 @@ class MyTkApp(threading.Thread):
 
     def mueve(self, event):
         canvas = event.widget
+        self.objeto = Figura(self.figura)
+        self.objeto.x = self.inicio.x
+        self.objeto.y = self.inicio.y
+        self.objeto.tipo = self.figura
+        self.objeto.x_final = event.x 
+        self.objeto.y_final = event.y
+        self.objeto.color = self.color
+        self.objeto.grosor = self.grosor
         if self.dibujo:
             canvas.delete(self.dibujo)
         if self.figura == "linea":
@@ -99,6 +120,22 @@ class MyTkApp(threading.Thread):
             id_objeto = canvas.create_rectangle(self.inicio.x, self.inicio.y, event.x, event.y, width=str(self.grosor), outline=self.color)
         self.dibujo = id_objeto
 
+    def dibuja_remoto(self, coordenadas):
+        x = int(coordenadas.split(",")[0])
+        y = int(coordenadas.split(",")[0])
+        print x  
+        print y
+        self.canvas.create_rectangle(x, y, 10, 10, width=str(self.grosor), outline=self.color)
+
+class Figura:
+    def __init__(self, figura):
+        self.tipo = figura
+        self.x = 0
+        self.y = 0
+        self.x_fin = 0
+        self.y_fin = 0
+        self.color = "black"
+        self.grosor = "1"
 
 class servidor(threading.Thread):
     def __init__(self):
@@ -119,11 +156,13 @@ class servidor(threading.Thread):
         self.sock.close()
 
     def client(self, connection):
+        ant = 0
         while True:
-            connection.send('hola')
+            connection.send(app.paquete)
             data = connection.recv(1024)
+            data.split(",")
             print data
-
+            app.dibuja_remoto(data)
 
 
 app = MyTkApp()
