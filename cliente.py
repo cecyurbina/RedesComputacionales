@@ -173,14 +173,16 @@ class cliente(threading.Thread):
             self.sock.send(app.paquete)
             self.enviados.append(app.paquete)
             ant = data
-            otro = self.sock.recv(1024)
-            print "el otro"
-            print otro
-            if otro != "nada":
-                if otro in self.enviados:
-                    pass
-                else:
-                    app.dibuja_remoto(otro)
+            numero = self.sock.recv(1024)
+            print numero
+            #otro = self.sock.recv(1024)
+            #print "el otro"
+            #print otro
+            #if otro != "nada":
+            #    if otro in self.enviados:
+            #        pass
+            #    else:
+            #        app.dibuja_remoto(otro)
             time.sleep(1)
         self.sock.close()
 

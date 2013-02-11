@@ -176,13 +176,14 @@ class servidor(threading.Thread):
             lock.acquire()
             connection.send(app.paquete)
             data = connection.recv(1024)
-            self.recibidos.append(data)
-            connection.send(self.recibidos[(self.num_clientes)*-1])
+            #connection.send(self.recibidos[(self.num_clientes)*-1])
             if ant == data:
                 pass
             else:
                 print data
                 app.dibuja_remoto(data)
+                self.recibidos.append(data)
+            connection.send(str(len(self.recibidos)))
             print data
             ant = data
             time.sleep(1)
