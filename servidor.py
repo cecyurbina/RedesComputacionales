@@ -122,10 +122,21 @@ class MyTkApp(threading.Thread):
 
     def dibuja_remoto(self, coordenadas):
         x = int(coordenadas.split(",")[0])
-        y = int(coordenadas.split(",")[0])
-        print x  
-        print y
-        self.canvas.create_rectangle(x, y, 10, 10, width=str(self.grosor), outline=self.color)
+        y = int(coordenadas.split(",")[1])
+        tipo = str(coordenadas.split(",")[2])
+        x_final = int(coordenadas.split(",")[3])
+        y_final = int(coordenadas.split(",")[4])
+        color = str(coordenadas.split(",")[5])
+        grosor = str(coordenadas.split(",")[6])
+        if tipo == "linea":
+            id_objeto = self.canvas.create_line(x, y, x_final, y_final, width=grosor, fill=color)
+            print self.figura
+        if tipo == "circulo":
+            id_objeto = self.canvas.create_oval(x, y, x_final, y_final, width=grosor, outline=color)
+            print self.figura
+        if tipo == "rectangulo":
+            id_objeto = self.canvas.create_rectangle(x, y, x_final, y_final, width=grosor, outline=color)
+            print self.figura
 
 class Figura:
     def __init__(self, figura):
@@ -145,25 +156,37 @@ class servidor(threading.Thread):
         self.sock = socket()
         self.sock.bind((host, port))
         self.sock.listen(5)
-
+        self.recibidos = []
+        self.num_clientes = 0
     def run(self):
         while(True):
             connection, addr = self.sock.accept()
             start_new_thread(self.client, (connection,))
             print "lakslask"
-            time.sleep(1)
         connection.close()
         self.sock.close()
 
     def client(self, connection):
-        ant = 0
+        self.num_clientes = self.num_clientes + 1
+        ant = "nada"
+        lock = threading.Lock()
+        self.recibidos.append("nada")
         while True:
+            print self.num_clientes
+            lock.acquire()
             connection.send(app.paquete)
             data = connection.recv(1024)
-            data.split(",")
+            self.recibidos.append(data)
+            connection.send(self.recibidos[(self.num_clientes)*-1])
+            if ant == data:
+                pass
+            else:
+                print data
+                app.dibuja_remoto(data)
             print data
-            app.dibuja_remoto(data)
-
+            ant = data
+            time.sleep(1)
+            lock.release()
 
 app = MyTkApp()
 s = servidor()

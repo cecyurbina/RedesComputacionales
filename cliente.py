@@ -156,9 +156,12 @@ class cliente(threading.Thread):
         port = 52000
         self.sock = socket()
         self.sock.connect((host, port))
+        self.enviados = []
 
     def run(self):
         ant = "nada"
+        time.sleep(10)
+        global lock
         while(True):
             print "s"
             data = self.sock.recv(1024)
@@ -167,13 +170,22 @@ class cliente(threading.Thread):
             else:
                 print data
                 app.dibuja_remoto(data)
-            self.sock.send('0,0')
-            time.sleep(1)
+            self.sock.send(app.paquete)
+            self.enviados.append(app.paquete)
             ant = data
+            otro = self.sock.recv(1024)
+            print "el otro"
+            print otro
+            if otro != "nada":
+                if otro in self.enviados:
+                    pass
+                else:
+                    app.dibuja_remoto(otro)
+            time.sleep(1)
         self.sock.close()
 
 
-
+lock = threading.Lock()
 app = MyTkApp()
 c = cliente()
 c.start()
