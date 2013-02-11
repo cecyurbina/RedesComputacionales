@@ -137,6 +137,7 @@ class MyTkApp(threading.Thread):
         if tipo == "rectangulo":
             id_objeto = self.canvas.create_rectangle(x, y, x_final, y_final, width=grosor, outline=color)
             print self.figura
+        self.paquete = str(x)+","+str(y)+","+tipo+","+str(x_final)+","+str(y_final)+","+color+","+grosor
 
 class Figura:
     def __init__(self, figura):
@@ -158,6 +159,7 @@ class servidor(threading.Thread):
         self.sock.listen(5)
         self.recibidos = []
         self.num_clientes = 0
+
     def run(self):
         while(True):
             connection, addr = self.sock.accept()
@@ -192,10 +194,6 @@ class servidor(threading.Thread):
 app = MyTkApp()
 s = servidor()
 s.start()
-
-
-
-
 
 
 print 'now can continue running code while mainloop runs'

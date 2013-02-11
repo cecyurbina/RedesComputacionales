@@ -152,10 +152,10 @@ class Figura:
 class cliente(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        host = 'localhost'
-        port = 52000
+        self.host = 'localhost'
+        self.port = 52000
         self.sock = socket()
-        self.sock.connect((host, port))
+        self.sock.connect((self.host, self.port))
         self.enviados = []
 
     def run(self):
