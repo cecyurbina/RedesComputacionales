@@ -152,10 +152,9 @@ class Figura:
 class cliente(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.host = 'localhost'
-        self.port = 52000
-        self.sock = socket()
-        self.sock.connect((self.host, self.port))
+        self.host = "localhost"
+        self.port = 9999
+        self.sock = socket(AF_INET, SOCK_DGRAM)
         self.enviados = []
 
     def run(self):
@@ -164,17 +163,17 @@ class cliente(threading.Thread):
         global lock
         while(True):
             print "s"
+            self.sock.sendto(app.paquete, (self.host,self.port))
             data = self.sock.recv(1024)
             if ant == data:
                 pass
             else:
                 print data
                 app.dibuja_remoto(data)
-            self.sock.send(app.paquete)
             self.enviados.append(app.paquete)
             ant = data
-            numero = self.sock.recv(1024)
-            print numero
+            #numero = self.sock.recv(1024)
+            #print numero
             #otro = self.sock.recv(1024)
             #print "el otro"
             #print otro
@@ -184,7 +183,7 @@ class cliente(threading.Thread):
             #    else:
             #        app.dibuja_remoto(otro)
             time.sleep(1)
-        self.sock.close()
+        #self.sock.close()
 
 
 lock = threading.Lock()
