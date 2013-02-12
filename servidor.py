@@ -4,6 +4,8 @@ import time
 from socket import * #se importa el modulo de sockets
 from thread import * #se importan hilos
 import SocketServer
+import struct
+import binascii
 
 class MyTkApp(threading.Thread):
     def __init__(self):
@@ -150,56 +152,30 @@ class Figura:
         self.color = "black"
         self.grosor = "1"
 
-#class servidor(threading.Thread):
-#    def __init__(self):
-#        threading.Thread.__init__(self)
-#        host = 'localhost'
-#        port = 52000 
-#        self.sock = socket()
-#        self.sock.bind((host, port))
-#        self.sock.listen(5)
-#        self.recibidos = []
-#        self.num_clientes = 0
-#
-#    def run(self):
-#        while(True):
-#            connection, addr = self.sock.accept()
-#            start_new_thread(self.client, (connection,))
-#            print "lakslask"
-#        connection.close()
-#        self.sock.close()
-#
-#    def client(self, connection):
-#        self.num_clientes = self.num_clientes + 1
-#        ant = "nada"
-#        lock = threading.Lock()
-#        self.recibidos.append("nada")
-#        while True:
-#            print self.num_clientes
-#            lock.acquire()
-#            connection.send(app.paquete)
-#            data = connection.recv(1024)
-#            #connection.send(self.recibidos[(self.num_clientes)*-1])
-#            if ant == data:
-#                pass
-#            else:
-#                print data
-#                app.dibuja_remoto(data)
-#                self.recibidos.append(data)
-#            connection.send(str(len(self.recibidos)))
-#            print data
-#            ant = data
-#            time.sleep(1)
-#            lock.release()
-#
+
+def empaquetar(cadena):
+    values = cadena
+    s = struct.Struct('45s')
+    paquete = s.pack(values)
+    paquete =  binascii.hexlify(paquete)
+    return paquete
+
+def desempaquetar(paquete):
+    paquete = binascii.unhexlify(paquete)
+    s = struct.Struct('45s')
+    cadena = s.unpack(paquete)
+    cadena =  " ".join(cadena) 
+    return cadena
 
 class MyUDPHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         global recibidos, ant
         data = self.request[0].strip()
+        data = desempaquetar(data)
         socket = self.request[1]
         print "{} wrote:".format(self.client_address[0])
-        socket.sendto(app.paquete, self.client_address)
+        paquete = empaquetar(app.paquete)
+        socket.sendto(paquete, self.client_address)
         if ant == data:
             pass
         else:

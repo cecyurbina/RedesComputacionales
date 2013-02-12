@@ -4,6 +4,8 @@ import threading
 import time
 from socket import * #se importa el modulo de sockets
 from thread import * #se importan hilos
+import struct
+import binascii
 
 class MyTkApp(threading.Thread):
     def __init__(self):
@@ -149,6 +151,20 @@ class Figura:
         self.color = "black"
         self.grosor = "1"
 
+def empaquetar(cadena):
+    values = cadena
+    s = struct.Struct('45s')
+    paquete = s.pack(values)
+    paquete =  binascii.hexlify(paquete)
+    return paquete
+
+def desempaquetar(paquete):
+    paquete = binascii.unhexlify(paquete)
+    s = struct.Struct('45s')
+    cadena = s.unpack(paquete)
+    cadena =  " ".join(cadena) 
+    return cadena
+
 class cliente(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -163,8 +179,10 @@ class cliente(threading.Thread):
         global lock
         while(True):
             print "s"
-            self.sock.sendto(app.paquete, (self.host,self.port))
+            paquete = empaquetar(app.paquete)
+            self.sock.sendto(paquete, (self.host,self.port))
             data = self.sock.recv(1024)
+            data = desempaquetar(data)
             if ant == data:
                 pass
             else:
@@ -172,18 +190,7 @@ class cliente(threading.Thread):
                 app.dibuja_remoto(data)
             self.enviados.append(app.paquete)
             ant = data
-            #numero = self.sock.recv(1024)
-            #print numero
-            #otro = self.sock.recv(1024)
-            #print "el otro"
-            #print otro
-            #if otro != "nada":
-            #    if otro in self.enviados:
-            #        pass
-            #    else:
-            #        app.dibuja_remoto(otro)
             time.sleep(1)
-        #self.sock.close()
 
 
 lock = threading.Lock()
