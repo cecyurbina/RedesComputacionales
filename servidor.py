@@ -8,12 +8,11 @@ import struct
 import binascii
 
 class MyTkApp(threading.Thread):
+    """Interfaz grafica del editor de dibujo
+    """
     def __init__(self):
         threading.Thread.__init__(self)
         self.start()
-
-    def callback(self):
-        print "hiasihaisadddddddddddddddddddddddddddasdsadsas"
 
     def run(self):
         self.cont = 0
@@ -72,6 +71,8 @@ class MyTkApp(threading.Thread):
         self.master.mainloop()
 
     def soltar(self, event):
+        """indica cuando se solto el mouse
+        """
         if self.dibujo:
             self.objetos.append(self.dibujo)
             print self.objetos
@@ -104,6 +105,8 @@ class MyTkApp(threading.Thread):
         self.figura = objeto
 
     def mueve(self, event):
+        """captura el movimiento del mouse
+        """
         canvas = event.widget
         self.objeto = Figura(self.figura)
         self.objeto.x = self.inicio.x
@@ -124,6 +127,8 @@ class MyTkApp(threading.Thread):
         self.dibujo = id_objeto
 
     def dibuja_remoto(self, coordenadas):
+        """dibuja lo que enviaron los clientes
+        """
         x = int(coordenadas.split(",")[0])
         y = int(coordenadas.split(",")[1])
         tipo = str(coordenadas.split(",")[2])
@@ -143,6 +148,9 @@ class MyTkApp(threading.Thread):
         self.paquete = str(x)+","+str(y)+","+tipo+","+str(x_final)+","+str(y_final)+","+color+","+grosor
 
 class Figura:
+    """caracteristicas de todas
+    las figuras
+    """
     def __init__(self, figura):
         self.tipo = figura
         self.x = 0
@@ -192,8 +200,3 @@ HOST, PORT = "localhost", 9999
 server = SocketServer.UDPServer((HOST, PORT), MyUDPHandler)
 server.serve_forever()
 
-
-#s = servidor()
-#s.start()
-
-print 'now can continue running code while mainloop runs'

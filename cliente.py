@@ -12,9 +12,6 @@ class MyTkApp(threading.Thread):
         threading.Thread.__init__(self)
         self.start()
 
-    def callback(self):
-        print "hiasihaisadddddddddddddddddddddddddddasdsadsas"
-
     def run(self):
         self.cont = 0
         self.master=Tkinter.Tk()
@@ -192,9 +189,7 @@ class cliente(threading.Thread):
             ant = data
             time.sleep(1)
 
-
 lock = threading.Lock()
 app = MyTkApp()
 c = cliente()
 c.start()
-print 'now can continue running code while mainloop runs'
